@@ -1,0 +1,26 @@
+@import "../index.css";
+
+#dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  max-width: var(--max-width-desktop);
+  margin: 0 auto;
+}
+
+.charts-row {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.charts-row__left {
+  flex: 0 0 40%;
+  min-width: 0;
+}
+
+.charts-row__right {
+  flex: 1;
+  min-width: 0;
+}

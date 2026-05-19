@@ -1,28 +1,53 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
+import "./authenticated-root.css";
+import logo from "../assets/logo.png";
 
 export default function AuthenticatedRoot() {
   // Vérifier le token d'authentification ici
-  return (
-    <>
-      <div id="sidebar">
-        <h1>React Router</h1>
 
-        <nav>
-          <ul>
+  function handleLogout() {
+    // Retirer le token d'authentification ici
+  }
+
+  return (
+    <div className="auth-layout">
+      <header>
+        <nav className="auth-navbar container">
+          <img src={logo} alt="SportSee" className="auth-navbar__logo" />
+
+          <ul className="auth-navbar__links">
             <li>
-              <Link to="/dashboard/1">Dashboard</Link>
+              <NavLink
+                to="/dashboard/1"
+                className={({ isActive }) =>
+                  `auth-navbar__link${isActive ? " active" : ""}`
+                }
+              >
+                Dashboard
+              </NavLink>
             </li>
             <li>
-              <Link to="/profile/1">Profile</Link>
+              <NavLink
+                to="/profile/1"
+                className={({ isActive }) =>
+                  `auth-navbar__link${isActive ? " active" : ""}`
+                }
+              >
+                Mon Profil
+              </NavLink>
             </li>
-            {/* Retirer le token d'authentification ici */}
-            <li>Déconnexion</li>
+            <li>
+              <button className="auth-navbar__logout" onClick={handleLogout}>
+                Se déconnecter
+              </button>
+            </li>
           </ul>
         </nav>
-      </div>
-      <div id="detail">
+      </header>
+
+      <main className="auth-content">
         <Outlet />
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

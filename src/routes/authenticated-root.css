@@ -1,0 +1,95 @@
+@import "../index.css";
+
+/* ===== AUTHENTICATED LAYOUT ===== */
+
+.auth-layout {
+  min-height: 100vh;
+  background-color: var(--color-light-blue);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== NAVBAR ===== */
+.auth-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--color-light-blue);
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-navbar__logo {
+  height: 32px;
+  width: auto;
+}
+
+/* White pill with links */
+.auth-navbar__links {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 16px rgba(11, 35, 244, 0.1);
+  padding: 10px 28px;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.auth-navbar__links li {
+  display: flex;
+  align-items: center;
+}
+
+/* Separator | */
+.auth-navbar__links li + li::before {
+  content: "|";
+  color: var(--color-gray-dark);
+  margin: 0 16px;
+  font-size: var(--font-size-sm);
+  user-select: none;
+}
+
+.auth-navbar__link {
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.auth-navbar__link:hover,
+.auth-navbar__link.active {
+  color: var(--color-primary);
+}
+
+.auth-navbar__logout {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: 0;
+  transition: color 0.2s ease;
+}
+
+.auth-navbar__logout:hover {
+  color: var(--color-primary);
+  box-shadow: none;
+}
+
+/* ===== MAIN CONTENT ===== */
+.auth-content {
+  margin-top: 80px; /* height of fixed navbar */
+  flex: 1;
+  padding: 40px;
+}

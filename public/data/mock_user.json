@@ -1,12 +1,14 @@
 {
-  "weeklyGoal": 2,
   "firstName": "Sophie",
   "lastName": "Martin",
-  "username": "sophiemartin",
+  "createdAt": "2025-01-01",
   "age": 32,
-  "gender": "female",
-  "profilePicture": "http://localhost:8000/images/sophie.jpg",
-  "height": 165,
   "weight": 60,
-  "createdAt": "2025-01-01"
+  "height": 165,
+  "profilePicture": "http://localhost:8000/images/sophie.jpg",
+  "statistics": {
+    "totalDistance": 120,
+    "totalSessions": 15,
+    "totalDuration": 900
+  }
 }
