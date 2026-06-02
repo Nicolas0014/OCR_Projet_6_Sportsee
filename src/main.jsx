@@ -3,11 +3,11 @@ import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
-import AuthenticatedRoot from "./routes/authenticated-root";
+import AuthenticatedRoot from "./pages/authenticated-root";
 import ErrorPage from "./error-page";
-import Profile from "./routes/profile";
-import Dashboard from "./routes/dashboard";
-import Login from "./routes/login";
+import Profile from "./pages/profile";
+import Dashboard from "./pages/dashboard";
+import Login from "./pages/login";
 
 const router = createBrowserRouter([
   {
@@ -21,11 +21,11 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "dashboard/:userId",
+        path: "dashboard",
         element: <Dashboard />,
       },
       {
-        path: "profile/:userId",
+        path: "profile",
         element: <Profile />,
       },
     ],

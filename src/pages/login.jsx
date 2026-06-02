@@ -1,8 +1,30 @@
 import "./login.css";
 import logo from "../assets/logo.png";
 import bgImage from "../assets/background_picture.png";
+import { apiClient } from "../lib";
 
 export default function Login() {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const username = event.target.username.value;
+    const password = event.target.password.value;
+
+    try {
+      const response = await apiClient("/api/login", null, {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+
+      // Stocker le token d'authentification dans le localStorage -> stocker dans les cookies pour une meilleure sécurité
+      localStorage.setItem("authToken", response.token);
+
+      // Rediriger vers le dashboard
+      window.location.href = "/dashboard";
+    } catch (error) {
+      alert("Échec de la connexion : " + error.message);
+    }
+  };
+
   return (
     <div id="login">
       {/* ── Left panel ── */}
@@ -15,15 +37,15 @@ export default function Login() {
           </h1>
           <h2 className="login__card-subtitle typo-name">Se connecter</h2>
 
-          <form className="login__form">
+          <form className="login__form" onSubmit={handleSubmit}>
             <div className="login__field">
               <label htmlFor="email" className="login__label typo-label">
-                Adresse e-mail
+                Username
               </label>
               <input
-                id="email"
-                type="email"
-                placeholder="exemple@email.com"
+                id="username"
+                type="text"
+                placeholder="profile"
                 className="login__input"
               />
             </div>

@@ -2,30 +2,17 @@ import UserProfileCard from "../components/UserProfileCard";
 import HeartRateSection from "../components/HeartRateSection";
 import WeeklyDistanceSection from "../components/WeeklyDistanceSection";
 import "./dashboard.css";
-
-// ── Mock user ──────────────────────────────────
-
-const USER = {
-  firstName: "Sophie",
-  lastName: "Martin",
-  createdAt: "2025-01-01",
-  age: 32,
-  weight: 60,
-  height: 165,
-  profilePicture: "/src/assets/profilPicture.jpg",
-  statistics: {
-    totalDistance: 120,
-    totalSessions: 15,
-    totalDuration: 900,
-  },
-};
+import useUserProfile from "../hooks/useUserProfile";
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
+  const { data: user, isLoading, error } = useUserProfile();
+
   return (
     <div id="dashboard">
-      <UserProfileCard user={USER} />
+      {isLoading && <p>Chargement...</p>}
+      {!isLoading && !error && user && <UserProfileCard user={user} />}
 
       <div className="charts-row">
         <div className="charts-row__left">

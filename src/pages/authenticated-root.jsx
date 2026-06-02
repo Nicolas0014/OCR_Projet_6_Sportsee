@@ -4,9 +4,17 @@ import logo from "../assets/logo.png";
 
 export default function AuthenticatedRoot() {
   // Vérifier le token d'authentification ici
+  const authToken = localStorage.getItem("authToken");
+  if (!authToken) {
+    window.location.href = "/login";
+  }
 
   function handleLogout() {
     // Retirer le token d'authentification ici
+    localStorage.removeItem("authToken");
+
+    // Rediriger vers la page de login
+    window.location.href = "/login";
   }
 
   return (
@@ -18,7 +26,7 @@ export default function AuthenticatedRoot() {
           <ul className="auth-navbar__links">
             <li>
               <NavLink
-                to="/dashboard/1"
+                to="/dashboard"
                 className={({ isActive }) =>
                   `auth-navbar__link${isActive ? " active" : ""}`
                 }
@@ -28,7 +36,7 @@ export default function AuthenticatedRoot() {
             </li>
             <li>
               <NavLink
-                to="/profile/1"
+                to="/profile"
                 className={({ isActive }) =>
                   `auth-navbar__link${isActive ? " active" : ""}`
                 }

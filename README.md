@@ -14,3 +14,17 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Data Source Switch (Mock/API)
+
+The application now uses a service facade between UI and data providers.
+
+1. Copy `.env.example` to `.env`.
+2. Configure `VITE_DATA_SOURCE`:
+3. `mock`: always use local mocked data.
+4. `api`: call API first, then fallback to mock if API fails.
+5. `auto`: same behavior as `api` (default if unset).
+
+Set `VITE_API_BASE_URL` to your backend root URL.
+
+Facade entry point: `src/services/sportseeService.js`.

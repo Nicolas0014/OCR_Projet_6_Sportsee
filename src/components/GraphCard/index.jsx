@@ -1,15 +1,6 @@
 import PeriodSelector from "../PeriodSelector";
 import "./GraphCard.css";
 
-/**
- * GraphCard – carte contenant un graphe avec en-tête et description.
- *
- * @param {string}    info                - Chiffre clé affiché à gauche (22px)
- * @param {string}    color               - "primary" | "secondary" (couleur de l'info)
- * @param {string}    description         - Paragraphe descriptif (12px, gray-dark)
- * @param {object}    periodSelectorProps - Props transmises au PeriodSelector
- * @param {ReactNode} children            - Le graphe à afficher
- */
 export default function GraphCard({
   info,
   color,

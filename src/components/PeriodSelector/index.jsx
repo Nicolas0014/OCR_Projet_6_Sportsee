@@ -1,14 +1,5 @@
 import "./PeriodSelector.css";
 
-/**
- * PeriodSelector – navigation par semaine ou par mois avec flèches chevron.
- *
- * @param {string}   label     - Libellé affiché entre les deux boutons (calculé par le parent)
- * @param {function} onPrev    - Callback bouton gauche
- * @param {function} onNext    - Callback bouton droit
- * @param {boolean}  canGoPrev - Active / désactive le bouton gauche
- * @param {boolean}  canGoNext - Active / désactive le bouton droit
- */
 export default function PeriodSelector({
   label,
   onPrev,
