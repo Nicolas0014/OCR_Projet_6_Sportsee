@@ -1,12 +1,13 @@
 import { Outlet, NavLink } from "react-router-dom";
 import "./authenticated-root.css";
 import logo from "../assets/logo.png";
+import { Navigate } from "react-router-dom";
 
 export default function AuthenticatedRoot() {
   // Vérifier le token d'authentification ici
   const authToken = localStorage.getItem("authToken");
   if (!authToken) {
-    window.location.href = "/login";
+    return <Navigate to="/login" />;
   }
 
   function handleLogout() {
@@ -14,7 +15,7 @@ export default function AuthenticatedRoot() {
     localStorage.removeItem("authToken");
 
     // Rediriger vers la page de login
-    window.location.href = "/login";
+    return <Navigate to="/login" />;
   }
 
   return (
