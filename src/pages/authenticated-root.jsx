@@ -6,7 +6,12 @@ import { AuthContext } from "../contexts/AuthContext";
 import { useContext } from "react";
 
 export default function AuthenticatedRoot() {
-  const { authToken, logout } = useContext(AuthContext);
+  const { authToken, isAuthLoading, logout } = useContext(AuthContext);
+
+  if (isAuthLoading) {
+    return null;
+  }
+
   if (!authToken) {
     return <Navigate to="/login" />;
   }
