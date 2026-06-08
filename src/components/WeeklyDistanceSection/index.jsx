@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Bar,
   BarChart,
@@ -11,68 +11,77 @@ import {
 } from "recharts";
 import GraphCard from "../GraphCard";
 import { formatMonthLabel } from "../../utils/formatHelpers";
-import { getISOWeekNumber, getMonthKey } from "../../utils/dateHelpers";
-import useUserProfile from "../../hooks/useUserProfile";
+import { getISOWeekNumber, getMonthBounds } from "../../utils/dateHelpers";
+import useRuns from "../../hooks/useRuns";
 
 export default function WeeklyDistanceSection() {
-  const { getRunsByDateRange } = useUserProfile();
-  const [runs, setRuns] = useState([]);
-  const [monthOffset, setMonthOffset] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [currentMonthSelected, setCurrentMonthSelected] = useState(
+    new Date(2025, 0, 1),
+  );
+  const [averageDistance, setAverageDistance] = useState(0);
+  const [selectedPeriod, setSelectedPeriod] = useState({
+    startDate: null,
+    endDate: null,
+  });
+  const [weeklyRuns, setWeeklyRuns] = useState([]);
+  const [chartData, setChartData] = useState([]);
+
+  const {
+    data: runsData,
+    isLoading,
+    error,
+  } = useRuns(selectedPeriod.startDate, selectedPeriod.endDate);
 
   useEffect(() => {
-    async function loadRuns() {
-      setIsLoading(true);
-      const rawRuns = await getRunsByDateRange("2000-01-01", "2100-12-31");
+    const { startDate, endDate } = getMonthBounds(currentMonthSelected);
+    setSelectedPeriod({ startDate, endDate });
+  }, [currentMonthSelected]);
 
-      setRuns(rawRuns);
-      setIsLoading(false);
-    }
+  useEffect(() => {
+    // Mettre à jour les calculs d'affichage dès que les données de runs sont chargées
+    const totalDistance = runsData.reduce((sum, run) => sum + run.distance, 0);
 
-    loadRuns();
-  }, [getRunsByDateRange]);
+    const averageDistance =
+      runsData.length > 0 ? totalDistance / runsData.length : 0;
+    setAverageDistance(averageDistance.toFixed(1));
+  }, [runsData]);
 
-  const selectedMonth = useMemo(() => {
-    // Fixer à Janvier 2025 dans le cadre du projet
-    const date = new Date(2025, 0, 1);
-    date.setMonth(date.getMonth() + monthOffset);
-
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-  }, [monthOffset]);
-
-  const runsInSelectedMonth = useMemo(() => {
-    return runs.filter((run) => getMonthKey(run.date) === selectedMonth);
-  }, [runs, selectedMonth]);
-
-  const chartData = useMemo(() => {
-    const groupedByWeek = runsInSelectedMonth.reduce((acc, run) => {
+  useEffect(() => {
+    // Regroupe les runs par semaine et stocke le resultat en state.
+    const groupedByWeek = (runsData || []).reduce((acc, run) => {
       const weekNumber = getISOWeekNumber(run.date);
 
       if (!acc[weekNumber]) {
-        acc[weekNumber] = { weekNumber, distanceSum: 0, runCount: 0 };
+        acc[weekNumber] = {
+          weekNumber,
+          runs: [],
+          distanceSum: 0,
+          runCount: 0,
+        };
       }
 
+      acc[weekNumber].runs.push(run);
       acc[weekNumber].distanceSum += run.distance;
       acc[weekNumber].runCount += 1;
       return acc;
     }, {});
 
-    return Object.values(groupedByWeek)
-      .sort((a, b) => a.weekNumber - b.weekNumber)
-      .map((week) => ({
-        week: `S${week.weekNumber}`,
-        avgDistance: Number((week.distanceSum / week.runCount).toFixed(1)),
-      }));
-  }, [runsInSelectedMonth]);
-
-  const totalDistance = useMemo(() => {
-    const monthTotal = runsInSelectedMonth.reduce(
-      (sum, run) => sum + run.distance,
-      0,
+    const nextWeeklyRuns = Object.values(groupedByWeek).sort(
+      (a, b) => a.weekNumber - b.weekNumber,
     );
 
-    return monthTotal.toFixed(1);
-  }, [runsInSelectedMonth]);
+    setWeeklyRuns(nextWeeklyRuns);
+  }, [runsData]);
+
+  useEffect(() => {
+    // Calcule le format final attendu par recharts.
+    const nextChartData = weeklyRuns.map((week) => ({
+      week: `S${week.weekNumber}`,
+      avgDistance: Number((week.distanceSum / week.runCount).toFixed(1)),
+    }));
+
+    setChartData(nextChartData);
+  }, [weeklyRuns]);
 
   if (isLoading) {
     return <p>Chargement...</p>;
@@ -80,17 +89,30 @@ export default function WeeklyDistanceSection() {
 
   return (
     <GraphCard
-      info={`${totalDistance} km`}
+      info={`${averageDistance} km en moyenne`}
       color="primary"
       description="Total des kilomètres du mois"
       periodSelectorProps={{
-        label: formatMonthLabel(selectedMonth),
-        onPrev: () => setMonthOffset((i) => i - 1),
-        onNext: () => setMonthOffset((i) => i + 1),
-        canGoPrev: true,
-        canGoNext: true,
+        label: formatMonthLabel(currentMonthSelected),
+        onPrev: () => {
+          setCurrentMonthSelected((prev) => {
+            const next = new Date(prev);
+            next.setMonth(next.getMonth() - 1);
+            return next;
+          });
+        },
+        onNext: () => {
+          setCurrentMonthSelected((prev) => {
+            const next = new Date(prev);
+            next.setMonth(next.getMonth() + 1);
+            return next;
+          });
+        },
       }}
     >
+      {!error && runsData.length === 0 && (
+        <p>Aucune donnée disponible pour ce mois.</p>
+      )}
       <ResponsiveContainer width="100%" aspect={1.6}>
         <BarChart
           data={chartData}

@@ -6,6 +6,10 @@ export const mockDataProvider = {
     return mockUser;
   },
   async getRunsByDateRange(startWeek, endWeek) {
-    return mockRuns;
+    if (!startWeek || !endWeek) {
+      return mockRuns;
+    }
+
+    return mockRuns.filter((run) => run.date >= startWeek && run.date <= endWeek);
   },
 };

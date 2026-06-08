@@ -2,26 +2,39 @@ import "./login.css";
 import logo from "../assets/logo.png";
 import bgImage from "../assets/background_picture.png";
 import { apiClient } from "../lib";
+import { useState, useEffect } from "react";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const [errorLogin, setErrorLogin] = useState(null);
+  const { authToken, login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authToken) {
+      navigate("/dashboard");
+    }
+  }, [authToken, navigate]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const username = event.target.username.value;
     const password = event.target.password.value;
 
     try {
+      setErrorLogin(null);
       const response = await apiClient("/api/login", null, {
         method: "POST",
         body: JSON.stringify({ username, password }),
       });
 
-      // Stocker le token d'authentification dans le localStorage -> stocker dans les cookies pour une meilleure sécurité
-      localStorage.setItem("authToken", response.token);
+      login(response.token);
 
-      // Rediriger vers le dashboard
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     } catch (error) {
-      alert("Échec de la connexion : " + error.message);
+      setErrorLogin("Email ou mot de passe incorrect.");
     }
   };
 
@@ -61,6 +74,8 @@ export default function Login() {
                 className="login__input"
               />
             </div>
+
+            {errorLogin && <div className="login__error">{errorLogin}</div>}
 
             <button type="submit" className="login__submit">
               Se connecter

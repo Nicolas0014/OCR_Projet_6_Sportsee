@@ -1,25 +1,29 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { apiService } from "../services/sportseeService/apiService";
 import { mockService } from "../services/sportseeService/mockService";
 import { AuthContext } from "../contexts/AuthContext";
 
 const source = import.meta.env.VITE_DATA_SOURCE;
 
-export default function useUserProfile() {
-  const [data, setData] = useState(null);
+export default function useRuns(startWeek, endWeek) {
+  const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const sportseeService = source === "mock" ? mockService : apiService;
   const { authToken } = useContext(AuthContext);
 
   useEffect(() => {
-    async function loadProfile() {
+    async function loadRuns(startWeek, endWeek) {
       setIsLoading(true);
       setError(null);
 
       try {
-        const profile = await sportseeService.getUserProfile(authToken);
-        setData(profile);
+        const runs = await sportseeService.getRunsByDateRange(
+          authToken,
+          startWeek,
+          endWeek,
+        );
+        setData(runs);
       } catch (err) {
         setError(
           err instanceof Error
@@ -31,8 +35,8 @@ export default function useUserProfile() {
       }
     }
 
-    loadProfile();
-  }, [authToken]);
+    loadRuns(startWeek, endWeek);
+  }, [authToken, startWeek, endWeek]);
 
   return {
     data,

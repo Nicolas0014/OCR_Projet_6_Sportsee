@@ -2,13 +2,18 @@ import { apiDataProvider } from "../providers/apiDataProvider";
 import { toProfileModel } from "../mappers/profileMapper";
 
 export const apiService = {
-  async getUserProfile() {
-    const rawProfile = await apiDataProvider.getUserProfile();
+  async getUserProfile(authToken) {
+    const rawProfile = await apiDataProvider.getUserProfile(authToken);
 
     return toProfileModel(rawProfile);
   },
 
-  async getRunsByDateRange(startWeek, endWeek) {
-    return await apiDataProvider.getRunsByDateRange(startWeek, endWeek);
+  async getRunsByDateRange(authToken, startWeek, endWeek) {
+    const rawRuns = await apiDataProvider.getRunsByDateRange(
+      authToken,
+      startWeek,
+      endWeek,
+    );
+    return rawRuns;
   },
 };

@@ -2,19 +2,12 @@ import { Outlet, NavLink } from "react-router-dom";
 import "./authenticated-root.css";
 import logo from "../assets/logo.png";
 import { Navigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
+import { useContext } from "react";
 
 export default function AuthenticatedRoot() {
-  // Vérifier le token d'authentification ici
-  const authToken = localStorage.getItem("authToken");
+  const { authToken, logout } = useContext(AuthContext);
   if (!authToken) {
-    return <Navigate to="/login" />;
-  }
-
-  function handleLogout() {
-    // Retirer le token d'authentification ici
-    localStorage.removeItem("authToken");
-
-    // Rediriger vers la page de login
     return <Navigate to="/login" />;
   }
 
@@ -46,7 +39,7 @@ export default function AuthenticatedRoot() {
               </NavLink>
             </li>
             <li>
-              <button className="auth-navbar__logout" onClick={handleLogout}>
+              <button className="auth-navbar__logout" onClick={logout}>
                 Se déconnecter
               </button>
             </li>

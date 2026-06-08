@@ -1,16 +1,21 @@
 import { apiClient, endpoints } from "../../lib";
 
-// Récupère le token d'authentification depuis le localStorage
-const authToken = localStorage.getItem("authToken");
-
 export const apiDataProvider = {
-  async getUserProfile() {
+  async getUserProfile(authToken) {
     return apiClient(endpoints.meProfile, authToken);
   },
-  async getRunsByDateRange(startWeek, endWeek) {
-    return apiClient(endpoints.meRuns, authToken, {
-      method: "POST",
-      body: JSON.stringify({ startWeek, endWeek }),
-    });
+  async getRunsByDateRange(authToken, startWeek, endWeek) {
+    if (!startWeek || !endWeek) {
+      throw new Error("startWeek and endWeek are required");
+    }
+
+    const params = new URLSearchParams();
+    params.set("startWeek", startWeek);
+    params.set("endWeek", endWeek);
+
+    const query = params.toString();
+    const path = query ? `${endpoints.meRuns}?${query}` : endpoints.meRuns;
+
+    return apiClient(path, authToken);
   },
 };

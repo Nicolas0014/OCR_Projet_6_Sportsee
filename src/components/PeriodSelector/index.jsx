@@ -1,18 +1,11 @@
 import "./PeriodSelector.css";
 
-export default function PeriodSelector({
-  label,
-  onPrev,
-  onNext,
-  canGoPrev = true,
-  canGoNext = true,
-}) {
+export default function PeriodSelector({ label, onPrev, onNext }) {
   return (
     <div className="period-selector">
       <button
         className="period-selector__btn"
         onClick={onPrev}
-        disabled={!canGoPrev}
         aria-label="Période précédente"
       >
         <span className="period-selector__chevron">&#8249;</span>
@@ -23,7 +16,6 @@ export default function PeriodSelector({
       <button
         className="period-selector__btn"
         onClick={onNext}
-        disabled={!canGoNext}
         aria-label="Période suivante"
       >
         <span className="period-selector__chevron">&#8250;</span>

@@ -1,6 +1,4 @@
 export function toProfileModel(rawProfile) {
-  console.log("Raw profile data:", rawProfile);
-
   return {
     firstName: rawProfile.profile.firstName,
     lastName: rawProfile.profile.lastName,

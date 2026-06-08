@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bar,
   CartesianGrid,
@@ -12,84 +12,74 @@ import {
 } from "recharts";
 import GraphCard from "../GraphCard";
 import { formatWeekLabel } from "../../utils/formatHelpers";
-import useUserProfile from "../../hooks/useUserProfile";
+import { getWeekBounds } from "../../utils/dateHelpers";
+import useRuns from "../../hooks/useRuns";
 
 const DAY_LABELS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
 export default function HeartRateSection() {
-  const { getRunsByDateRange } = useUserProfile();
-  const [weekRuns, setWeekRuns] = useState([]);
-  const [weekOffset, setWeekOffset] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [currentWeekSelected, setCurrentWeekSelected] = useState(
+    new Date(2025, 0, 6),
+  );
+  const [averageBpm, setAverageBpm] = useState(0);
+  const [selectedPeriod, setSelectedPeriod] = useState(() =>
+    getWeekBounds(new Date(2025, 0, 6)),
+  );
+  const [chartData, setChartData] = useState([]);
 
-  const weekRange = useMemo(() => {
-    const today = new Date();
-    const day = (today.getDay() + 6) % 7;
-    const monday = new Date(today);
-    monday.setHours(0, 0, 0, 0);
-    monday.setDate(today.getDate() - day + weekOffset * 7);
-
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    return {
-      startWeek: monday.toISOString().slice(0, 10),
-      endWeek: sunday.toISOString().slice(0, 10),
-    };
-  }, [weekOffset]);
+  const {
+    data: runsData = [],
+    isLoading,
+    error,
+  } = useRuns(selectedPeriod.startWeek, selectedPeriod.endWeek);
 
   useEffect(() => {
-    async function loadWeekRuns() {
-      setIsLoading(true);
-      const runs = await getRunsByDateRange(
-        weekRange.startWeek,
-        weekRange.endWeek,
-      );
-      setWeekRuns(runs || []);
-      setIsLoading(false);
-    }
+    setSelectedPeriod(getWeekBounds(currentWeekSelected));
+  }, [currentWeekSelected]);
 
-    loadWeekRuns();
-  }, [getRunsByDateRange, weekRange]);
-
-  const chartData = useMemo(() => {
+  useEffect(() => {
     const dataByDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
 
-    weekRuns.forEach((run) => {
+    (runsData || []).forEach((run) => {
       const date = new Date(run.date);
       const dayIndex = (date.getDay() + 6) % 7;
       dataByDay[dayIndex].push(run);
     });
 
-    return DAY_LABELS.map((label, day) => {
+    const nextChartData = DAY_LABELS.map((label, day) => {
       const dayRuns = dataByDay[day];
 
       if (!dayRuns.length) {
-        return { day, label, min: null, max: null, average: null };
+        return { day, label, minBpm: null, maxBpm: null, moyBpm: null };
       }
 
-      const min = Math.min(...dayRuns.map((run) => run.heartRate.min));
-      const max = Math.max(...dayRuns.map((run) => run.heartRate.max));
-      const average =
+      const minBpm = Math.min(...dayRuns.map((run) => run.heartRate.min));
+      const maxBpm = Math.max(...dayRuns.map((run) => run.heartRate.max));
+      const moyBpm =
         dayRuns.reduce((sum, run) => sum + run.heartRate.average, 0) /
         dayRuns.length;
 
       return {
         day,
         label,
-        min,
-        max,
-        average: Number(average.toFixed(1)),
+        minBpm,
+        maxBpm,
+        moyBpm: Number(moyBpm.toFixed(1)),
       };
     });
-  }, [weekRuns]);
 
-  const avgBpm = useMemo(() => {
-    const valid = chartData.filter((d) => d.average !== null);
-    if (!valid.length) return 0;
-    return Math.round(
-      valid.reduce((sum, d) => sum + d.average, 0) / valid.length,
-    );
+    setChartData(nextChartData);
+  }, [runsData]);
+
+  useEffect(() => {
+    const valid = chartData.filter((item) => item.moyBpm !== null);
+    if (valid.length === 0) {
+      setAverageBpm(0);
+      return;
+    }
+
+    const total = valid.reduce((sum, item) => sum + item.moyBpm, 0);
+    setAverageBpm(Number((total / valid.length).toFixed(1)));
   }, [chartData]);
 
   if (isLoading) {
@@ -98,17 +88,32 @@ export default function HeartRateSection() {
 
   return (
     <GraphCard
-      info={`${avgBpm} BPM`}
+      info={`${averageBpm} BPM en moyenne`}
       color="secondary"
       description="Frequence cardiaque moyenne"
       periodSelectorProps={{
-        label: formatWeekLabel(weekRange.startWeek),
-        onPrev: () => setWeekOffset((i) => i - 1),
-        onNext: () => setWeekOffset((i) => i + 1),
+        label: formatWeekLabel(currentWeekSelected),
+        onPrev: () => {
+          setCurrentWeekSelected((prev) => {
+            const next = new Date(prev);
+            next.setDate(next.getDate() - 7);
+            return next;
+          });
+        },
+        onNext: () => {
+          setCurrentWeekSelected((prev) => {
+            const next = new Date(prev);
+            next.setDate(next.getDate() + 7);
+            return next;
+          });
+        },
         canGoPrev: true,
         canGoNext: true,
       }}
     >
+      {!error && runsData.length === 0 && (
+        <p>Aucune donnee disponible pour cette semaine.</p>
+      )}
       <ResponsiveContainer width="100%" aspect={1.6}>
         <ComposedChart
           data={chartData}
@@ -139,14 +144,14 @@ export default function HeartRateSection() {
             )}
           />
           <Bar
-            dataKey="min"
+            dataKey="minBpm"
             name="Min BPM"
             barSize={14}
             fill="var(--color-secondary-light)"
             radius={[4, 4, 0, 0]}
           />
           <Bar
-            dataKey="max"
+            dataKey="maxBpm"
             name="Max BPM"
             barSize={14}
             fill="var(--color-secondary)"
@@ -154,7 +159,7 @@ export default function HeartRateSection() {
           />
           <Line
             type="monotone"
-            dataKey="average"
+            dataKey="moyBpm"
             name="Moy BPM"
             stroke="var(--color-light-blue)"
             strokeWidth={2}
