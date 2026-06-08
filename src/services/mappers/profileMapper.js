@@ -3,6 +3,7 @@ export function toProfileModel(rawProfile) {
     firstName: rawProfile.profile.firstName,
     lastName: rawProfile.profile.lastName,
     age: rawProfile.profile.age,
+    gender: rawProfile.profile.gender,
     height: rawProfile.profile.height,
     weight: rawProfile.profile.weight,
     createdAt: rawProfile.profile.createdAt,
@@ -11,6 +12,8 @@ export function toProfileModel(rawProfile) {
       totalDistance: rawProfile.statistics.totalDistance,
       totalSessions: rawProfile.statistics.totalSessions,
       totalDuration: rawProfile.statistics.totalDuration,
+      totalCaloriesBurned: rawProfile.statistics.totalCaloriesBurned,
+      totalBreakDays: rawProfile.statistics.totalBreakDays,
     },
   };
 }
