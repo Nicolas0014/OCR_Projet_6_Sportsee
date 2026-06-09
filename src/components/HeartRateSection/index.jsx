@@ -18,12 +18,10 @@ import useRuns from "../../hooks/useRuns";
 const DAY_LABELS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
 export default function HeartRateSection() {
-  const [currentWeekSelected, setCurrentWeekSelected] = useState(
-    new Date(2025, 0, 6),
-  );
+  const [currentWeekSelected, setCurrentWeekSelected] = useState(new Date());
   const [averageBpm, setAverageBpm] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState(() =>
-    getWeekBounds(new Date(2025, 0, 6)),
+    getWeekBounds(new Date()),
   );
   const [chartData, setChartData] = useState([]);
 
@@ -90,7 +88,7 @@ export default function HeartRateSection() {
     <GraphCard
       info={`${averageBpm} BPM en moyenne`}
       color="secondary"
-      description="Frequence cardiaque moyenne"
+      description="Fréquence cardiaque moyenne"
       periodSelectorProps={{
         label: formatWeekLabel(currentWeekSelected),
         onPrev: () => {
@@ -112,7 +110,7 @@ export default function HeartRateSection() {
       }}
     >
       {!error && runsData.length === 0 && (
-        <p>Aucune donnee disponible pour cette semaine.</p>
+        <p>Aucune donnée disponible pour cette semaine.</p>
       )}
       <ResponsiveContainer width="100%" aspect={1.6}>
         <ComposedChart
@@ -130,8 +128,11 @@ export default function HeartRateSection() {
             tick={{ fontSize: 11, fill: "var(--color-gray-dark)" }}
             axisLine={false}
             tickLine={false}
-            unit=" bpm"
-            domain={["auto", "auto"]}
+            tickFormatter={(value) => `${value} bpm`}
+            domain={[120, 180]}
+            width={52}
+            tickMargin={8}
+            allowDecimals={false}
           />
           <Tooltip
             formatter={(val, name) => [val !== null ? `${val} bpm` : "-", name]}

@@ -11,19 +11,16 @@ import {
 } from "recharts";
 import GraphCard from "../GraphCard";
 import { formatMonthLabel } from "../../utils/formatHelpers";
-import { getISOWeekNumber, getMonthBounds } from "../../utils/dateHelpers";
+import { getMonthBounds } from "../../utils/dateHelpers";
 import useRuns from "../../hooks/useRuns";
 
 export default function WeeklyDistanceSection() {
-  const [currentMonthSelected, setCurrentMonthSelected] = useState(
-    new Date(2025, 0, 1),
-  );
+  const [currentMonthSelected, setCurrentMonthSelected] = useState(new Date());
   const [averageDistance, setAverageDistance] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState({
     startDate: null,
     endDate: null,
   });
-  const [weeklyRuns, setWeeklyRuns] = useState([]);
   const [chartData, setChartData] = useState([]);
 
   const {
@@ -39,49 +36,67 @@ export default function WeeklyDistanceSection() {
 
   useEffect(() => {
     // Mettre à jour les calculs d'affichage dès que les données de runs sont chargées
-    const totalDistance = runsData.reduce((sum, run) => sum + run.distance, 0);
+    const totalDistance = (runsData || []).reduce(
+      (sum, run) => sum + run.distance,
+      0,
+    );
 
     const averageDistance =
-      runsData.length > 0 ? totalDistance / runsData.length : 0;
+      (runsData || []).length > 0 ? totalDistance / runsData.length : 0;
     setAverageDistance(averageDistance.toFixed(1));
   }, [runsData]);
 
   useEffect(() => {
-    // Regroupe les runs par semaine et stocke le resultat en state.
-    const groupedByWeek = (runsData || []).reduce((acc, run) => {
-      const weekNumber = getISOWeekNumber(run.date);
+    // Construit S1..S4/S5 selon le mois sélectionné, puis injecte 0 km si semaine vide.
+    const year = currentMonthSelected.getFullYear();
+    const month = currentMonthSelected.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const weekCount = Math.ceil(daysInMonth / 7);
+    const monthNumber = String(month + 1).padStart(2, "0");
 
-      if (!acc[weekNumber]) {
-        acc[weekNumber] = {
-          weekNumber,
-          runs: [],
-          distanceSum: 0,
-          runCount: 0,
-        };
+    const formatRangeLabel = (startDay, endDay) => {
+      const paddedStartDay = String(startDay).padStart(2, "0");
+      const paddedEndDay = String(endDay).padStart(2, "0");
+
+      return `${paddedStartDay}/${monthNumber} - ${paddedEndDay}/${monthNumber}`;
+    };
+
+    const weeks = Array.from({ length: weekCount }, (_, index) => ({
+      week: `S${index + 1}`,
+      distanceSum: 0,
+      runCount: 0,
+      rangeLabel: formatRangeLabel(
+        index * 7 + 1,
+        Math.min(daysInMonth, index * 7 + 7),
+      ),
+    }));
+
+    (runsData || []).forEach((run) => {
+      const runDate = new Date(run.date);
+
+      if (runDate.getFullYear() !== year || runDate.getMonth() !== month) {
+        return;
       }
 
-      acc[weekNumber].runs.push(run);
-      acc[weekNumber].distanceSum += run.distance;
-      acc[weekNumber].runCount += 1;
-      return acc;
-    }, {});
+      const weekIndex = Math.min(
+        weekCount - 1,
+        Math.floor((runDate.getDate() - 1) / 7),
+      );
+      weeks[weekIndex].distanceSum += run.distance;
+      weeks[weekIndex].runCount += 1;
+    });
 
-    const nextWeeklyRuns = Object.values(groupedByWeek).sort(
-      (a, b) => a.weekNumber - b.weekNumber,
-    );
-
-    setWeeklyRuns(nextWeeklyRuns);
-  }, [runsData]);
-
-  useEffect(() => {
-    // Calcule le format final attendu par recharts.
-    const nextChartData = weeklyRuns.map((week) => ({
-      week: `S${week.weekNumber}`,
-      avgDistance: Number((week.distanceSum / week.runCount).toFixed(1)),
+    const nextChartData = weeks.map((week) => ({
+      week: week.week,
+      avgDistance:
+        week.runCount > 0
+          ? Number((week.distanceSum / week.runCount).toFixed(1))
+          : 0,
+      rangeLabel: week.rangeLabel,
     }));
 
     setChartData(nextChartData);
-  }, [weeklyRuns]);
+  }, [currentMonthSelected, runsData]);
 
   if (isLoading) {
     return <p>Chargement...</p>;
@@ -110,7 +125,7 @@ export default function WeeklyDistanceSection() {
         },
       }}
     >
-      {!error && runsData.length === 0 && (
+      {!error && (runsData || []).length === 0 && (
         <p>Aucune donnée disponible pour ce mois.</p>
       )}
       <ResponsiveContainer width="100%" aspect={1.6}>
@@ -137,8 +152,8 @@ export default function WeeklyDistanceSection() {
               `${Number(val).toFixed(1)} km`,
               "Distance moy.",
             ]}
-            labelFormatter={(label) =>
-              `Semaine ${String(label).replace("S", "")}`
+            labelFormatter={(_, payload) =>
+              payload?.[0]?.payload?.rangeLabel || ""
             }
           />
           <Legend

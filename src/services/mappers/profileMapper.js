@@ -8,6 +8,7 @@ export function toProfileModel(rawProfile) {
     weight: rawProfile.profile.weight,
     createdAt: rawProfile.profile.createdAt,
     profilePicture: rawProfile.profile.profilePicture,
+    weeklyGoals: rawProfile.profile.weeklyGoals,
     statistics: {
       totalDistance: rawProfile.statistics.totalDistance,
       totalSessions: rawProfile.statistics.totalSessions,

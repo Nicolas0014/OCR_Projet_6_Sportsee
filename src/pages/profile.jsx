@@ -74,6 +74,8 @@ export default function Profile() {
     },
   ];
 
+  console.log(user);
+
   return (
     <section id="profile" className="profile-page container">
       <div className="profile-page__left-column">

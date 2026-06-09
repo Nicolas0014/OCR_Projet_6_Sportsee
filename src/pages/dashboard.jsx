@@ -1,6 +1,7 @@
 import UserProfileCard from "../components/UserProfileCard";
 import HeartRateSection from "../components/HeartRateSection";
 import WeeklyDistanceSection from "../components/WeeklyDistanceSection";
+import WeeklyRecap from "../components/WeeklyRecap";
 import "./dashboard.css";
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -18,6 +19,8 @@ export default function Dashboard() {
           <HeartRateSection />
         </div>
       </div>
+
+      <WeeklyRecap />
     </div>
   );
 }

@@ -1,0 +1,149 @@
+.weekly-recap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--color-light-blue);
+  border-radius: var(--radius-card);
+  padding-top: 20px;
+}
+
+.weekly-recap__header h2 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  line-height: 1.2;
+}
+
+.weekly-recap__header p {
+  margin: 2px 0 0;
+  color: var(--color-gray-dark);
+  font-size: var(--font-size-sm);
+}
+
+.weekly-recap__content {
+  display: flex;
+  gap: 20px;
+}
+
+.weekly-recap__goal-card,
+.weekly-recap__summary-card {
+  background: var(--color-surface);
+  border-radius: 12px;
+}
+
+.weekly-recap__goal-card {
+  padding: 18px;
+  min-height: 250px;
+  flex: 0 0 40%;
+}
+
+.weekly-recap__summary {
+  flex: 1;
+}
+
+.weekly-recap__goal-title {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.weekly-recap__goal-value {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  line-height: 1;
+  opacity: 0.5;
+}
+
+.weekly-recap__goal-subtitle {
+  margin: 4px 0 0;
+  color: var(--color-gray-dark);
+  font-size: var(--font-size-sm);
+}
+
+.weekly-recap__chart-wrap {
+  position: relative;
+  margin-top: 10px;
+  height: 180px;
+}
+
+.weekly-recap__legend {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-dark);
+}
+
+.weekly-recap__legend--done {
+  left: 4px;
+  bottom: 32px;
+}
+
+.weekly-recap__legend--left {
+  right: 6px;
+  top: 10px;
+}
+
+.weekly-recap__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+.weekly-recap__dot--done {
+  background: var(--color-primary);
+}
+
+.weekly-recap__dot--left {
+  background: #aab2ff;
+}
+
+.weekly-recap__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.weekly-recap__summary-card {
+  padding: 18px;
+  min-height: 119px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.weekly-recap__summary-label {
+  margin: 0;
+  color: var(--color-gray-dark);
+  font-size: var(--font-size-sm);
+}
+
+.weekly-recap__summary-value {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.weekly-recap__summary-value--primary {
+  color: var(--color-primary);
+}
+
+.weekly-recap__summary-value--secondary {
+  color: var(--color-secondary);
+}
+
+.weekly-recap__summary-unit {
+  opacity: 0.5;
+}
+
+@media (max-width: 900px) {
+  .weekly-recap__content {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-recap__goal-card {
+    min-height: auto;
+  }
+}

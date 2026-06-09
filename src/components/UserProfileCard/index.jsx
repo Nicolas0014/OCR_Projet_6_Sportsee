@@ -18,13 +18,15 @@ export default function UserProfileCard() {
     );
   }
 
-  if (user) {
-    memberSince = new Date(user.createdAt).toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  if (!user) {
+    return <p>Aucune donnée utilisateur disponible.</p>;
   }
+
+  memberSince = new Date(user.createdAt).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     user && (
